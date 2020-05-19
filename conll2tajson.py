@@ -36,7 +36,7 @@ def lines2json(lines, fname):
 
     for line in lines:
         if len(line) > 1:
-            word = line.split(' ')
+            word = line.strip().split(' ')
             toks.append(word[0])
 
             # Token Offset
