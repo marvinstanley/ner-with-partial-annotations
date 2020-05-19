@@ -22,6 +22,16 @@ $ pip install ccg_nlpy allennlp==0.8.4
 You can see some sample data in [`data/eng`](data/eng). These files have 
 TextAnnotation format, from [ccg_nlpy](https://github.com/CogComp/cogcomp-nlpy).
 
+If you have a labeled text file in CONLL format, you can use [`conll2tajson.py`](conll2tajson.py)
+to convert it into a tajson file.
+
+## Usage:
+This file converts a folder full of labeled text file in CONLL Format (one token and one label per line)
+into a folder of tajson files.
+```bash
+$ conll2tajson.py input_folder output_folder
+```
+
 You will need to set paths in [`utils.py`](mylib/utils.py) for the 
 embeddings, and the data.
 
