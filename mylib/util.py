@@ -147,11 +147,11 @@ def get_data(lang: str, recall: int = 1.0):
     if USING_BERT:
         indexers["bert"] = PretrainedBertIndexer("bert-base-multilingual-cased", do_lowercase=False)
 
-    reader = TextAnnotationDatasetReader(coding_scheme="BIOUL", token_indexers=indexers,
+    reader = TextAnnotationDatasetReader(coding_scheme="IOB1", token_indexers=indexers,
                                          strategy="trust_labels", recall=recall, labelset=labels)
     # Important that validation_reader has strategy="trust_labels" because otherwise the gold labels would be wrong.
     # recall is always 1.0 for validation_reader
-    validation_reader = TextAnnotationDatasetReader(coding_scheme="BIOUL", token_indexers=indexers,
+    validation_reader = TextAnnotationDatasetReader(coding_scheme="IOB1", token_indexers=indexers,
                                                     strategy="trust_labels", labelset=labels)
 
     if recall == 1:
