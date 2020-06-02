@@ -18,7 +18,7 @@ import numpy as np
 
 
 # these are the gold b values for the training datasets (see Table 1 in the paper)
-goldb = {"eng": 0.166, "esp": 0.123, "deu": 0.08, "ned": 0.095, "amh": 0.112, "ara": 0.126, "hin": 0.074, "som": 0.112, "ben": 0.12, "uig": 0.1}
+goldb = {"id": 0.0987, "eng": 0.166, "esp": 0.123, "deu": 0.08, "ned": 0.095, "amh": 0.112, "ara": 0.126, "hin": 0.074, "som": 0.112, "ben": 0.12, "uig": 0.1}
 
 
 # Set these to the desired values!
@@ -115,7 +115,7 @@ def get_data(lang: str, recall: int = 1.0):
 
     if lang == "eng":
         # https://nlp.stanford.edu/projects/glove/
-        pretrained_file = "/path/to/embeddings/glove.6B.50d.txt"
+        pretrained_file = "data/glove.6B.50d.txt"
         WORD_EMB_DIM = 50
         lower_tokens = True
         labels = ["PER", "ORG", "LOC", "MISC"]
@@ -137,6 +137,11 @@ def get_data(lang: str, recall: int = 1.0):
         WORD_EMB_DIM = 64
         lower_tokens = False
         labels = ["PER", "ORG", "LOC", "MISC"]
+    elif lang == "id":
+        pretrained_file = "data/id50.txt"
+        WORD_EMB_DIM = 100
+        lower_tokens = True
+        labels = ["PER", "ORG", "LOC"]
     else:
         print("Other languages not supported in this release!")
 
@@ -147,11 +152,11 @@ def get_data(lang: str, recall: int = 1.0):
     if USING_BERT:
         indexers["bert"] = PretrainedBertIndexer("bert-base-multilingual-cased", do_lowercase=False)
 
-    reader = TextAnnotationDatasetReader(coding_scheme="IOB1", token_indexers=indexers,
+    reader = TextAnnotationDatasetReader(coding_scheme="BIOUL", token_indexers=indexers,
                                          strategy="trust_labels", recall=recall, labelset=labels)
     # Important that validation_reader has strategy="trust_labels" because otherwise the gold labels would be wrong.
     # recall is always 1.0 for validation_reader
-    validation_reader = TextAnnotationDatasetReader(coding_scheme="IOB1", token_indexers=indexers,
+    validation_reader = TextAnnotationDatasetReader(coding_scheme="BIOUL", token_indexers=indexers,
                                                     strategy="trust_labels", labelset=labels)
 
     if recall == 1:
@@ -182,7 +187,7 @@ def get_data_binary(lang: str, recall: int = 1.0):
 
     # TODO: these are either Glove embeddings, or the embeddings from Lample et al.
     if lang == "eng":
-        pretrained_file = "/path/to/embeddings/glove.6B.50d.txt"
+        pretrained_file = "data/glove.6B.50d.txt"
         WORD_EMB_DIM = 50
         lower_tokens = True
     elif lang == "esp":
@@ -197,6 +202,10 @@ def get_data_binary(lang: str, recall: int = 1.0):
         pretrained_file = "/path/to/embeddings/deu64"
         WORD_EMB_DIM = 64
         lower_tokens = False
+    elif lang == "id":
+        pretrained_file = "data/id50.txt"
+        WORD_EMB_DIM = 100
+        lower_tokens = True
     else:
         print("Other languages not supported in this release!")
 
@@ -365,18 +374,18 @@ def copy_weights(data: List[Instance], binary_data: List[Instance]):
                 if marginals[1] > marginals[0]:
                     new_marginals = np.log(np.ones(num_tags) / float(num_tags))
                 else:
-                    new_marginals = np.ones(num_tags)
-                    
+                    # FIXME
                     if marginals[0] == 1.0:
                         # O gets the same confidence
-                        new_marginals[0] = np.log(0.999)
+                        new_marginals[0] = np.log(0.9999)
                         # then split whatever's left among the remaining tokens.
-                        remainder = 1 - 0.999
+                        remainder = 1 - 0.9999
                     else:
                         # O gets the same confidence
                         new_marginals[0] = np.log(marginals[0])
                         # then split whatever's left among the remaining tokens.
                         remainder = 1 - marginals[0]
+
                     for j in range(1, num_tags):
                         new_marginals[j] = np.log(remainder / float(num_tags-1))
 
