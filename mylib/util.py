@@ -366,10 +366,17 @@ def copy_weights(data: List[Instance], binary_data: List[Instance]):
                     new_marginals = np.log(np.ones(num_tags) / float(num_tags))
                 else:
                     new_marginals = np.ones(num_tags)
-                    # O gets the same confidence
-                    new_marginals[0] = np.log(marginals[0])
-                    # then split whatever's left among the remaining tokens.
-                    remainder = 1 - marginals[0]
+                    
+                    if marginals[0] == 1.0:
+                        # O gets the same confidence
+                        new_marginals[0] = np.log(0.999)
+                        # then split whatever's left among the remaining tokens.
+                        remainder = 1 - 0.999
+                    else:
+                        # O gets the same confidence
+                        new_marginals[0] = np.log(marginals[0])
+                        # then split whatever's left among the remaining tokens.
+                        remainder = 1 - marginals[0]
                     for j in range(1, num_tags):
                         new_marginals[j] = np.log(remainder / float(num_tags-1))
 
