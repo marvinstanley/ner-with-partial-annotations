@@ -36,7 +36,8 @@ def lines2json(lines, fname):
 
     for line in lines:
         if len(line) > 1:
-            word = line.strip().split(' ')
+            word = line.strip().split('\t')
+            # print(word)
             toks.append(word[0])
 
             # Token Offset
@@ -53,9 +54,9 @@ def lines2json(lines, fname):
               start = False
               if word[1] == 'O':
                 prevLabel = word[1]
+                startNerOffset += 1
               else:
-                prevLabel = word[1][2:]
-              startNerOffset += 1
+                prevLabel = word[1]  
               continue
 
             if word[1] == 'O':
@@ -92,7 +93,13 @@ def lines2json(lines, fname):
     tokens.extend(toks)
     sentends.append(len(tokens))
 
-    print(tokens[92810:92812])
+    for i in range(len(tokens)):
+      constituents_token.append({
+                  'label' : "",
+                  'score' : 1.0,
+                  'start' : i,
+                  'end' : i+1
+                })
 
     doc["text"] = " ".join(tokens)
     doc["tokens"] = tokens
@@ -112,6 +119,17 @@ def lines2json(lines, fname):
           "generator": "conll2tajson.py",
           "score": 1.0,
           "constituents" : constituents_ner
+        }]
+        },
+      {
+      "viewName": "TOKENS",
+      "viewData": [
+        {
+          "viewType": "edu.illinois.cs.cogcomp.core.datastructures.textannotation.SpanLabelView",
+          "viewName": "TOKENS",
+          "generator": "conll2tajson.py",
+          "score": 1.0,
+          "constituents" : constituents_token
         }]
       }]
 
