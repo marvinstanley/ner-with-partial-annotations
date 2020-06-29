@@ -77,7 +77,7 @@ def lines2json(lines, fname):
               if prevLabel != 'O' and word[1][:2] == 'B-':
                 endNerOffset = len(tokens) + len(toks) 
                 constituents_ner.append({
-                  'label' : word[1][2:],
+                  'label' : prevLabel[2:],
                   'score' : 1.0,
                   'start' : startNerOffset,
                   'end' : endNerOffset - 1
